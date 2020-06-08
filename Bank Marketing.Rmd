@@ -1,0 +1,176 @@
+---
+title: 'Bank Marketing'
+author: "Anugeah Fuad R"
+date: "`r format(Sys.Date(), '%B %e, %Y')`"
+output:
+  html_document:
+   
+    df_print: paged
+    higlight: zenburn
+    number_sections: yes
+    theme: flatly
+    toc: yes
+    toc_float:
+      collapsed: no
+  word_document:
+    toc: yes
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Background {.tabset}
+
+## Brief
+1st Project named "Bank Marketing" and it'll be used "bank-full.csv"
+as previous data.
+
+## Data's Explanation
+
+The data is related with direct marketing campaigns of a Portuguese banking institution. The marketing campaigns were based on phone calls. Often, more than one contact to the same client was required, in order to access if the product (bank term deposit) would be ('yes') or not ('no') subscribed.
+
+
+# Input Data
+```{r}
+bank_marketing <- read.table("bank-full.csv",
+                             header = TRUE,
+                             sep = ";",
+                             stringsAsFactors = FALSE)
+```
+
+
+## Data Inspection 
+
+### Dimension of Matrix
+```{r}
+dim(bank_marketing)
+```
+
+### Names
+```{r}
+names(bank_marketing)
+```
+
+
+### Head
+```{r}
+head(bank_marketing,5)
+```
+
+### Tail
+```{r}
+tail(bank_marketing)
+```
+
+
+## Data Cleansing and Coertions
+
+
+### Melihat tipe data secara keseluruhan
+```{r}
+str(bank_marketing)
+```
+
+
+### Merubah chr --> factor
+```{r}
+bank_marketing$default <- as.factor(bank_marketing$default)
+bank_marketing$job <- as.factor(bank_marketing$job)
+bank_marketing$marital <- as.factor(bank_marketing$marital)
+bank_marketing$education <- as.factor(bank_marketing$education)
+bank_marketing$month <- as.factor(bank_marketing$month)
+bank_marketing$housing <- as.factor(bank_marketing$housing)
+bank_marketing$loan <- as.factor(bank_marketing$loan)
+bank_marketing$contact <- as.factor(bank_marketing$contact)
+bank_marketing$y <- as.factor(bank_marketing$y)
+```
+
+### Melihat isi kolom dari Job
+```{r}
+table(bank_marketing$job)
+```
+
+### Check missing value
+```{r}
+colSums(is.na(bank_marketing))
+```
+
+```{r}
+anyNA(bank_marketing)
+```
+
+# Data Explanation
+```{r}
+summary(bank_marketing)
+```
+
+## Check Outlier
+```{r}
+aggregate(balance~job, bank_marketing, mean)
+```
+
+```{r}
+aggregate(balance~job, bank_marketing,var)
+```
+
+```{r}
+boxplot(bank_marketing$balance)
+```
+
+# Data Manipulation and Transformation
+
+## Kategori mana yang nilai balance paling kecil dan paling besar
+```{r}
+bank_marketing[bank_marketing$balance == -8019,]
+```
+
+```{r}
+bank_marketing[bank_marketing$balance ==102127,]
+```
+
+## Mengurutkan balance berdasarkan job dan umur dengan rata-rata balance
+```{r}
+agg <- aggregate(balance~job+age, bank_marketing, FUN = mean)
+head.agg<- agg[order(agg$balance, decreasing = T),]
+head(head.agg,5)
+```
+
+## Lama telepon penawaran berdasarkan pekerjaan dan umur
+```{r}
+head.duration <- bank_marketing[bank_marketing$duration >= 319, c("job", "age","duration")]
+head(head.duration)
+```
+
+```{r}
+str(bank_marketing)
+summary(bank_marketing)
+```
+
+## Pekerjaan dan pendidikan apa yang memiliki saldo paling banyak
+```{r}
+od <- aggregate(balance~education+job, bank_marketing, FUN = sum)
+od[order(od$balance, decreasing = T),]
+```
+
+
+
+## Prediksi calon nasabah yang akan membeli produk bank
+```{r}
+bmd <- bank_marketing[bank_marketing$balance >=1000 &
+               bank_marketing$default=="no" &
+               bank_marketing$housing=="no" &
+               bank_marketing$loan=="no" &
+               bank_marketing$contact=="cellular" &
+               bank_marketing$duration=="258"
+               ,]
+bmd[order(bmd$balance, decreasing = T),]
+```
+
+
